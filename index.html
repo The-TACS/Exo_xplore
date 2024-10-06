@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8" >
+<link rel="stylesheet" href="styles.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<title>Canvas</title>
+</head>
+<body>
+    <header class="sticky">
+        <a href="index.html"><img src="Resources/Pencil.png" alt="A pixel pencil"></a>
+        <ul>
+            <li><a href="contactus.html">Contact&nbsp;Us</a></li>
+            <li><a href="help.html">Help</a></li>
+            <li><a href="index.html"><b>Canvas</b></a></li>       
+          </ul>
+    </header>
+    <div class="toolbar">
+        <div class="colorwheel" id="colorwheel"></div>
+        <input value="#FF0000" id="colorinput" oninput="changecolor()">
+        <p>Line width</p>
+        <div class="slidecontainer">
+            <input type="range" min="10" max="100" value="20" class="slider" oninput="ctx.lineWidth = 2**(this.value/10);">
+        </div>
+        <table>
+            <tr>
+                <td><button title="Pencil tool (p)" id="toolbutton0" onclick="tooltype = 0; updateButton(0);"><img src="Resources/Pencil.png" alt="A pencil"></button></td>
+                <td><button title="Eraser tool (e)" id="toolbutton1" onclick="tooltype = 1; updateButton(1)"><img src="Resources/Eraser.png" alt="A eraser"></button></td>
+            </tr>
+            <tr>
+                <td><button title="Circle tool (c)" id="toolbutton2" onclick="tooltype = 2; updateButton(2)"><img src="Resources/Circle tool.png" alt="A Circle drawer"></button></td>
+                <td><button title="Square tool (s)" id="toolbutton3" onclick="tooltype = 3; updateButton(3)"><img src="Resources/Square tool.png" alt="A square drawer"></button></td>
+            </tr>
+            <tr>
+                <td><button title="Line tool (l)" id="toolbutton4" onclick="tooltype = 4; updateButton(4)"><img src="Resources/Line tool.png" alt="A line drawer"></button></td>
+                <td><button title="Reset button (r)" id="toolbutton5"onclick="ctx.clearRect(0,0,maincanvas.width,maincanvas.height); updateButton(0); tooltype = 0;"><img src="Resources/resetImage.png" alt="A Bucket tool"></button></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="canvas" id="canvasdiv">
+        <canvas id="maincanvas">Loading error...</canvas>
+    </div>
+    <div id='helpsidebar' class="helpsidebar">
+        <h1>Key Binds</h1>
+        <p>To find the keybind of a key leave the mouse in one spot over it and a message should pop up descirbing what it does and it's key bind</p>
+        <h1 style="margin-top: 2vw;">Basic Use</h1>
+        <p>To use click on a tool and use it by clicking on the canvas and draging the mouse around to create art</p>
+        <p>For more infomation go to the <a href="help.html">Help Page</a></p>
+    </div>
+    <button class="helpicon" onclick="helpbuttonclicked();"><p>?</p></button>
+    <footer>
+        <p>&copy; Exo_explore</p>
+        <ul>
+            <li><a href="https://www.facebook.com/" target="_blank”><img src="Resources/facebook logo.png" alt="Facebook logo"></a></li>
+            <li><a href="https://www.instagram.com/" target=”_blank”><img src="Resources/Instagram logo.png" alt="Instagram logo"></a></li>
+            <li><a href="https://twitter.com/" target=”_blank”><img src="Resources/Twitter logo.png" alt="Twitter logo"></a></li>
+            <li><div class="linkeninlogo"><a href="https://www.linkedin.com/" target=”_blank”><img src="Resources/Linkedin logo.png" alt="Linkedin logo"></a></div></li>
+        </ul>
+    </footer>
+    <script>
+        const colorwheel = document.getElementById('colorwheel');
+        const colorinput = document.getElementById('colorinput');
+        const colorerror = document.getElementById('colorerror');
+        const maincanvas = document.getElementById('maincanvas');
+        const canvasdiv = document.getElementById('canvasdiv');
+        const widthslider = document.getElementById('widthslider');
+        const toolbutton0 = document.getElementById('toolbutton0');
+        const toolbutton1 = document.getElementById('toolbutton1');
+        const toolbutton2 = document.getElementById('toolbutton2');
+        const toolbutton3 = document.getElementById('toolbutton3');
+        const toolbutton4 = document.getElementById('toolbutton4');
+        const toolbutton5 = document.getElementById('toolbutton5');
+        const helpsidebar = document.getElementById('helpsidebar');
+
+        const re = /[0-9A-Fa-f]{6}/g;
+
+        var ctx = maincanvas.getContext("2d");    
+        var image = new Image();
+        var startpos = {
+            x: 0,
+            y: 0
+        };
+        var endpos = {
+            x: 0,
+            y: 0
+        };
+
+        var id = null;
+        var sidebaractive = false;
+        var mousedown = false;
+        var tooltype = 0;
+        var color = '#FF0000';
+
+        //set canvas to sorronding div size
+        maincanvas.width = canvasdiv.clientWidth;
+        maincanvas.height = canvasdiv.clientHeight;
+
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+
+        function drawOval(x, y, rw, rh)
+        {   
+            ctx.save();
+            ctx.scale(1,  rh/rw);
+            ctx.beginPath();
+            ctx.arc(x, y/(rh/rw), rw, 0, 2 * Math.PI);
+            ctx.restore();
+            ctx.stroke();  
+        }
+        //colour wheel
+        function changecolor () {
+            setTimeout(function(){
+                color = colorinput.value;
+                if (re.test(color)){
+                    colorwheel.style.background = color;
+                    ctx.strokeStyle = color;
+                }
+            },50);
+        };
+        function rgb2hex(rgb) {
+            rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+            function hex(x) {
+                return ("0" + parseInt(x).toString(16)).slice(-2);
+            }
+            return [parseInt(hex(rgb[1]),16), parseInt(hex(rgb[2]),16), parseInt(hex(rgb[3]),16)];
+        }
+        function updateButton(x){
+            toolbutton0.style.background = '#FFFFFF';
+            toolbutton1.style.background = '#FFFFFF';
+            toolbutton2.style.background = '#FFFFFF';
+            toolbutton3.style.background = '#FFFFFF';
+            toolbutton4.style.background = '#FFFFFF';
+            toolbutton5.style.background = '#FFFFFF';
+            switch (x){
+                case 0:
+                    toolbutton0.style.background = '#f79256';
+                    break;
+                case 1:
+                    toolbutton1.style.background = '#f79256';
+                    break;
+                case 2:
+                    toolbutton2.style.background = '#f79256';
+                    break;
+                case 3:
+                    toolbutton3.style.background = '#f79256';
+                    break;
+                case 4:
+                    toolbutton4.style.background = '#f79256';
+                    break;
+            }
+        }
+        function helpbuttonclicked() {
+            if (sidebaractive){
+                var pos = 0;
+                helpicon = $('.helpicon');
+                clearInterval(id);
+                id = setInterval(function() {
+                    if (pos == -20) {
+                        clearInterval(id);
+                        console.log(id);
+                    } else {
+                        pos--
+                        helpsidebar.style.right = (pos)+'%'
+                        helpicon.css({'opacity':(100+(pos*2.5))+'%','margin-right': (8*25/screen.width)+(pos*(25/screen.width*0.4))+25 + 'px'})
+                    }
+                }, 10);
+                sidebaractive = false;
+            } else {
+                var pos = 0;
+                helpicon = $('.helpicon');
+                clearInterval(id);
+                id = setInterval(function() {
+                    if (pos == 20) {
+                        clearInterval(id);
+                        console.log(id);
+                    } else {
+                        pos++
+                        helpsidebar.style.right = (pos-20)+'%'
+                        helpicon.css({'opacity':(50+(pos*2.5))+'%','margin-right': (((8-(25/screen.width))/20)*pos) + 'vw'})
+                    }
+                }, 10);
+                sidebaractive = true;
+            }
+        }
+
+
+        //broken animate on mouse over code
+        /*toolbutton0.onmouseenter = function(){
+            if (toolbuttondata.zero){
+                rgb = rgb2hex($(toolbutton0).css('background-color'))
+                clearInterval(toolbuttonanmi0);
+                pos1 = rgb[0];
+                pos2 = rgb[1];
+                pos3 = rgb[2];
+                toolbuttonanmi0 = setInterval(function (){
+                    if (pos1 > 247){pos1--;}
+                    if (pos2 > 146){pos2--;}
+                    if (pos3 > 86){pos3--;} 
+                    else {clearInterval(toolbuttonanmi0);}
+                    toolbutton0.style.background = '#' + (pos1.toString(16) + pos2.toString(16) + pos3.toString(16));               
+                },1);
+            }
+
+        }
+        toolbutton0.onmouseleave = function(){
+            if (toolbuttondata.zero){
+                rgb = rgb2hex($(toolbutton0).css('background-color'))
+                clearInterval(toolbuttonanmi0);
+                pos1 = rgb[0];
+                pos2 = rgb[1];
+                pos3 = rgb[2];
+                toolbuttonanmi0 = setInterval(function (){
+                    if (pos1 < 255){pos1++;}
+                    if (pos2 < 255){pos2++;}
+                    if (pos3 < 255){pos3++;} else {clearInterval(toolbuttonanmi0);}
+                    toolbutton0.style.background = '#' + (pos1.toString(16) + pos2.toString(16) + pos3.toString(16));               
+                },1);
+            }
+        }*/
+
+        //drawing code
+        maincanvas.onmousedown = function (e) {
+            // e = Mouse click event.
+            let rect = e.target.getBoundingClientRect();
+            startpos.x = e.clientX - rect.left; //x position within the element.
+            startpos.y = e.clientY - rect.top;  //y position within the element.
+            mousedown = true;
+            image.src = maincanvas.toDataURL();
+            if (tooltype == 1){
+                ctx.strokeStyle = '#FFFFFF'
+            } else {
+                ctx.strokeStyle = color;
+            }
+        }
+        maincanvas.onmouseup = function (e) {
+            mousedown = false;
+        }
+        maincanvas.onmousemove = function(e) {
+            // e = Mouse click event.
+            if (mousedown){
+            let rect = e.target.getBoundingClientRect();
+            endpos.x = e.clientX - rect.left; //x position within the element.
+            endpos.y = e.clientY - rect.top;  //y position within the element.
+            
+            //draw the stuff based on selected tool
+            ctx.beginPath();
+            switch (tooltype){
+                case 0:
+                    ctx.moveTo(startpos.x, startpos.y);
+                    ctx.lineTo(endpos.x, endpos.y);
+                    startpos.x = endpos.x;
+                    startpos.y = endpos.y;
+                    break;
+                case 1:
+                    ctx.moveTo(startpos.x, startpos.y);
+                    ctx.lineTo(endpos.x, endpos.y);
+                    startpos.x = endpos.x;
+                    startpos.y = endpos.y;
+                    break;
+                case 2:
+                    ctx.clearRect(0,0,maincanvas.width,maincanvas.height)
+                    ctx.drawImage(image, 0, 0);
+                    drawOval(Math.abs((startpos.x+endpos.x)/2), Math.abs((startpos.y+endpos.y)/2), Math.abs((endpos.x-startpos.x)/2), Math.abs((endpos.y-startpos.y)/2));
+                    break;
+                case 3:
+                    ctx.clearRect(0,0,maincanvas.width,maincanvas.height)
+                    ctx.drawImage(image, 0, 0);
+                    ctx.rect(startpos.x,startpos.y,endpos.x-startpos.x,endpos.y-startpos.y)
+                    break;
+                case 4:
+                    ctx.clearRect(0,0,maincanvas.width,maincanvas.height)
+                    ctx.drawImage(image, 0, 0);
+                    ctx.moveTo(startpos.x, startpos.y);
+                    ctx.lineTo(endpos.x, endpos.y);
+                    break;
+
+
+            }
+            ctx.stroke();
+            }
+        }
+        $(document).on("keypress", function (e) {
+            if (!($(".toolbar input").is(":focus"))){
+                console.log('hi')
+                if (e.key == 'p'){
+                    tooltype = 0;
+                    updateButton(0)
+                } if (e.key == 'e'){
+                    tooltype = 1;
+                    updateButton(1);
+                } if (e.key == 'c'){
+                    tooltype = 2;
+                    updateButton(2);
+                } if (e.key == 's'){
+                    tooltype = 3;
+                    updateButton(3);
+                } if (e.key == 'l'){
+                    tooltype = 4;
+                    updateButton(4);
+                } if (e.key == 'r'){
+                    ctx.clearRect(0,0,maincanvas.width,maincanvas.height); 
+                    updateButton(0);
+                    tooltype = 0;
+                }
+        }
+        });
+
+        helpsidebar.style.right = '-20%';
+        updateButton(0)
+    </script>
+</body>

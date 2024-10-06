@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+<link rel="stylesheet" href="styles.css">
+<title>Contact Us</title>
+</head>
+<body>
+    <header class="sticky">
+        <a href="index.html"><img src="Resources/Pencil.png" alt="A pixel pencil"></a>
+        <ul>
+            <li><a href="contactus.html"><b>Contact&nbsp;Us</b></a></li>
+            <li><a href="help.html">Help</a></li>
+            <li><a href="index.html">Canvas</a></li>        
+          </ul>
+    </header>
+    <div class="orangeheader header">
+        <h1>Enter Contact infomation</h1>
+    </div>
+    <div class="positioningtable">
+    <table>
+        <tr>
+            <td>First Name</td>
+            <td><input type="text" id="firstName"></td>
+        </tr>
+        <tr>
+            <td>Last Name</td>
+            <td><input type="text" id="lastName"></td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td><input type="text" id="email"></td>
+        </tr>
+        <tr>
+            <td>What do you want to say?</td>
+        </tr>
+    </table>
+    <textarea oninput="auto_grow(this)" class="input" id="textBody" name="paragraph_text"></textarea>
+    <button onclick="document.getElementById('firstName').value = ''; document.getElementById('lastName').value = '';document.getElementById('email').value = '';document.getElementById('textBody').value = '';">Enter</button>
+    </div>
+    <footer>
+        <p>&copy; Zac Ginever 2022</p>
+        <ul>
+            <li><a href="https://www.facebook.com/" target=”_blank”><img src="Resources/facebook logo.png" alt="Facebook logo"></a></li>
+            <li><a href="https://www.instagram.com/" target=”_blank”><img src="Resources/Instagram logo.png" alt="Instagram logo"></a></li>
+            <li><a href="https://twitter.com/" target=”_blank”><img src="Resources/Twitter logo.png" alt="Twitter logo"></a></li>
+            <li><div class="linkeninlogo"><a href="https://www.linkedin.com/" target=”_blank”><img src="Resources/Linkedin logo.png" alt="Linkedin logo"></a></div></li>
+        </ul>
+    </footer>
+    <script>
+        function auto_grow(element) {
+            element.style.height = "5px";
+            element.style.height = (element.scrollHeight)+"px";
+        }
+    </script>
+</body>

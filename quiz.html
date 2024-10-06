@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exoplanet Quiz</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnH1zP7Qk6UGdyjX6sj9jjjA6iGNSgN9e6SxeFkIh9+qpg9eL1L27AnUzqOYoer7E3Y99h/sA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Universal Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* Overlay for better readability */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: -1;
+        }
+
+        /* Container */
+        .container {
+            background: rgba(0, 0, 0, 0.85);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        /* Start Screen */
+        #start-screen {
+            display: block;
+        }
+
+        #quiz-screen, #result-screen {
+            display: none;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 1.2em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 5px;
+            background-color: #1E90FF;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #63B8FF;
+        }
+
+        /* Quiz Styles */
+        .question {
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+
+        .options li {
+            margin-bottom: 10px;
+        }
+
+        .options button {
+            width: 100%;
+            text-align: left;
+            padding: 10px;
+            background-color: #2F4F4F;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .options button:hover {
+            background-color: #4F8F8F;
+        }
+
+        .options button.selected {
+            background-color: #1E90FF;
+        }
+
+        /* Result Styles */
+        #result-screen h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        #result-screen p {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 25px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 20px;
+            width: 0%;
+            background-color: #1E90FF;
+            transition: width 0.3s ease;
+        }
+
+        /* Difficulty Labels */
+        .difficulty-label {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-left: 10px;
+            font-size: 0.8em;
+            color: #fff;
+        }
+
+        .easy {
+            background-color: #28a745;
+        }
+
+        .medium {
+            background-color: #ffc107;
+        }
+
+        .hard {
+            background-color: #dc3545;
+        }
+
+        /* Review Section Styles */
+        .review-section {
+            margin-top: 20px;
+        }
+
+        .review-question {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #fff;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .correct {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .incorrect {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .explanation {
+            margin-top: 10px;
+            font-size: 0.95em;
+            color: #ccc;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .question {
+                font-size: 1.1em;
+            }
+
+            button {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="container">
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <h1><i class="fas fa-rocket"></i> Exoplanet Quiz</h1>
+            <div class="form-group">
+                <label for="num-questions">Enter Number of Questions (Multiple of 5):</label>
+                <input type="number" id="num-questions" min="5" max="50" step="5" value="5">
+            </div>
+            <div class="form-group">
+                <label>Select Difficulty Levels:</label>
+                <div>
+                    <input type="checkbox" id="easy" checked>
+                    <label for="easy">Easy</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="medium" checked>
+                    <label for="medium">Medium</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="hard" checked>
+                    <label for="hard">Hard</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <button id="start-btn">Start Quiz</button>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div id="question-container">
+                <!-- Questions will be injected here -->
+            </div>
+            <button id="submit-btn">Submit Answers</button>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen">
+            <h2>Quiz Results</h2>
+            <p id="score"></p>
+            <p id="percentage"></p>
+            <div class="review-section" id="review-section">
+                <h3>Review Your Answers</h3>
+                <!-- Review content will be injected here -->
+            </div>
+            <button id="restart-btn">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // Questions Data (50 Real Exoplanet-Related Questions)
+        const allQuestions = {
+            easy: [
+                {
+                    question: "What is an exoplanet?",
+                    options: [
+                        "A planet outside our solar system",
+                        "A moon of Jupiter",
+                        "A dwarf planet within our solar system",
+                        "An asteroid"
+                    ],
+                    answer: 0,
+                    explanation: "An exoplanet is a planet that orbits a star outside our solar system."
+                },
+                {
+                    question: "Which telescope was pivotal in discovering many exoplanets?",
+                    options: [
+                        "Hubble Space Telescope",
+                        "James Webb Space Telescope",
+                        "Kepler Space Telescope",
+                        "Spitzer Space Telescope"
+                    ],
+                    answer: 2,
+                    explanation: "The Kepler Space Telescope was specifically designed to discover Earth-size planets orbiting other stars."
+                },
+                {
+                    question: "What method detects exoplanets by observing the dimming of a star?",
+                    options: [
+                        "Radial velocity",
+                        "Direct imaging",
+                        "Transit photometry",
+                        "Astrometry"
+                    ],
+                    answer: 2,
+                    explanation: "Transit photometry detects exoplanets by measuring the slight dimming of a star as a planet passes in front of it."
+                },
+                {
+                    question: "Which exoplanet is known as a 'hot Jupiter'?",
+                    options: [
+                        "Kepler-22b",
+                        "HD 189733 b",
+                        "Proxima Centauri b",
+                        "Gliese 581c"
+                    ],
+                    answer: 1,
+                    explanation: "HD 189733 b is categorized as a 'hot Jupiter' due to its large size and close proximity to its host star, resulting in high temperatures."
+                },
+                {
+                    question: "What is the habitable zone around a star known as?",
+                    options: [
+                        "Circumstellar region",
+                        "Goldilocks zone",
+                        "Orbital path",
+                        "Asteroid belt"
+                    ],
+                    answer: 1,
+                    explanation: "The habitable zone, often called the 'Goldilocks zone,' is the region around a star where conditions may be just right to support liquid water on a planet's surface."
+                },
+                {
+                    question: "Which exoplanet is considered one of the most Earth-like?",
+                    options: [
+                        "Kepler-452b",
+                        "HD 209458 b",
+                        "WASP-12b",
+                        "TRAPPIST-1e"
+                    ],
+                    answer: 0,
+                    explanation: "Kepler-452b is often referred to as Earth's cousin due to its similar size and location within its star's habitable zone."
+                },
+                {
+                    question: "What is the primary composition of gas giant exoplanets?",
+                    options: [
+                        "Rock and metal",
+                        "Water and ice",
+                        "Hydrogen and helium",
+                        "Carbon dioxide"
+                    ],
+                    answer: 2,
+                    explanation: "Gas giants are primarily composed of hydrogen and helium, similar to Jupiter and Saturn in our solar system."
+                },
+                {
+                    question: "Which mission succeeded Kepler in discovering exoplanets?",
+                    options: [
+                        "TESS (Transiting Exoplanet Survey Satellite)",
+                        "Voyager",
+                        "Pioneer",
+                        "Cassini"
+                    ],
+                    answer: 0,
+                    explanation: "TESS, launched by NASA, succeeded Kepler in discovering exoplanets by surveying bright, nearby stars."
+                },
+                {
+                    question: "What term describes an exoplanet that orbits two stars?",
+                    options: [
+                        "Circumbinary planet",
+                        "Binary exoplanet",
+                        "Dual-star planet",
+                        "Twin orbit planet"
+                    ],
+                    answer: 0,
+                    explanation: "A circumbinary planet orbits two stars, maintaining its orbit around the common center of mass."
+                },
+                {
+                    question: "Which exoplanet was the first discovered around a Sun-like star?",
+                    options: [
+                        "51 Pegasi b",
+                        "Proxima Centauri b",
+                        "HD 209458 b",
+                        "Kepler-22b"
+                    ],
+                    answer: 0,
+                    explanation: "51 Pegasi b was the first exoplanet discovered orbiting a Sun-like star, marking a significant milestone in astronomy."
+                },
+                // Add more Easy questions up to 20
+                {
+                    question: "Which space mission focuses on finding exoplanets around nearby bright stars?",
+                    options: [
+                        "Kepler",
+                        "TESS",
+                        "Hubble",
+                        "Voyager"
+                    ],
+                    answer: 1,
+                    explanation: "TESS (Transiting Exoplanet Survey Satellite) focuses on finding exoplanets around nearby bright stars."
+                },
+                {
+                    question: "What is the primary goal of the Kepler mission?",
+                    options: [
+                        "To study the cosmos",
+                        "To discover exoplanets",
+                        "To observe galaxies",
+                        "To explore the Moon"
+                    ],
+                    answer: 1,
+                    explanation: "The primary goal of the Kepler mission was to discover Earth-size exoplanets orbiting other stars."
+                },
+                {
+                    question: "Which exoplanet is located in the habitable zone of its star?",
+                    options: [
+                        "WASP-12b",
+                        "Kepler-442b",
+                        "HD 209458 b",
+                        "TrES-2b"
+                    ],
+                    answer: 1,
+                    explanation: "Kepler-442b is located in the habitable zone of its star, where conditions may allow for liquid water."
+                },
+                {
+                    question: "Which exoplanet has been nicknamed 'Earth's Twin'?",
+                    options: [
+                        "TRAPPIST-1e",
+                        "Kepler-186f",
+                        "Proxima Centauri b",
+                        "HD 40307g"
+                    ],
+                    answer: 1,
+                    explanation: "Kepler-186f is often nicknamed 'Earth's Twin' due to its similar size and location within the habitable zone."
+                },
+                {
+                    question: "What type of star does Proxima Centauri b orbit?",
+                    options: [
+                        "Yellow dwarf",
+                        "Red dwarf",
+                        "Blue giant",
+                        "White dwarf"
+                    ],
+                    answer: 1,
+                    explanation: "Proxima Centauri b orbits a red dwarf star, which is smaller and cooler than our Sun."
+                },
+                {
+                    question: "Which exoplanet was the first to have its atmosphere detected?",
+                    options: [
+                        "HD 209458 b",
+                        "Kepler-22b",
+                        "WASP-12b",
+                        "Gliese 581c"
+                    ],
+                    answer: 0,
+                    explanation: "HD 209458 b was the first exoplanet to have its atmosphere detected using the transit method."
+                },
+                {
+                    question: "What is the primary method used to determine the mass of an exoplanet?",
+                    options: [
+                        "Transit photometry",
+                        "Radial velocity",
+                        "Direct imaging",
+                        "Astrometry"
+                    ],
+                    answer: 1,
+                    explanation: "Radial velocity is the primary method used to determine the mass of an exoplanet by measuring the star's wobble."
+                },
+                {
+                    question: "Which exoplanet is known for its extreme temperatures and close orbit to its star?",
+                    options: [
+                        "WASP-33b",
+                        "Kepler-10b",
+                        "GJ 1214b",
+                        "HD 189733 b"
+                    ],
+                    answer: 0,
+                    explanation: "WASP-33b is known for its extreme temperatures due to its close orbit to its host star."
+                },
+                {
+                    question: "Which method involves measuring the bending of light as it passes near a star to detect exoplanets?",
+                    options: [
+                        "Gravitational microlensing",
+                        "Transit photometry",
+                        "Radial velocity",
+                        "Direct imaging"
+                    ],
+                    answer: 0,
+                    explanation: "Gravitational microlensing involves measuring the bending of light as it passes near a star to detect exoplanets."
+                },
+                {
+                    question: "Which exoplanet is part of the TRAPPIST-1 system?",
+                    options: [
+                        "TRAPPIST-1e",
+                        "TRAPPIST-1a",
+                        "TRAPPIST-1b",
+                        "TRAPPIST-1c"
+                    ],
+                    answer: 0,
+                    explanation: "TRAPPIST-1e is one of the seven Earth-sized planets in the TRAPPIST-1 system."
+                },
+                {
+                    question: "What does the term 'super-Earth' refer to in exoplanet classification?",
+                    options: [
+                        "A planet larger than Earth but smaller than Neptune",
+                        "A planet twice the size of Earth",
+                        "A planet with twice the mass of Earth",
+                        "A planet similar in size to Earth but with a thick atmosphere"
+                    ],
+                    answer: 0,
+                    explanation: "A 'super-Earth' refers to an exoplanet that is larger than Earth but smaller than Neptune."
+                },
+                {
+                    question: "Which exoplanet was the first to have its thermal emission directly detected?",
+                    options: [
+                        "HD 209458 b",
+                        "WASP-12b",
+                        "TrES-2b",
+                        "Kepler-16b"
+                    ],
+                    answer: 1,
+                    explanation: "WASP-12b was the first exoplanet to have its thermal emission directly detected, allowing studies of its temperature distribution."
+                },
+                {
+                    question: "Which space telescope is set to further our understanding of exoplanet atmospheres?",
+                    options: [
+                        "Hubble Space Telescope",
+                        "James Webb Space Telescope",
+                        "Spitzer Space Telescope",
+                        "Chandra X-ray Observatory"
+                    ],
+                    answer: 1,
+                    explanation: "The James Webb Space Telescope is set to further our understanding of exoplanet atmospheres through advanced spectroscopy."
+                },
+                // Add more Easy questions up to 20
+            ],
+            medium: [
+                {
+                    question: "What defines the habitable zone around a star?",
+                    options: [
+                        "The area where planets can have liquid water",
+                        "The region where planets have rings",
+                        "The zone where stars emit the most light",
+                        "The distance where asteroids are abundant"
+                    ],
+                    answer: 0,
+                    explanation: "The habitable zone is the region around a star where conditions may allow for liquid water to exist on a planet's surface."
+                },
+                {
+                    question: "Which space mission succeeded Kepler in discovering exoplanets?",
+                    options: [
+                        "TESS (Transiting Exoplanet Survey Satellite)",
+                        "Voyager",
+                        "Pioneer",
+                        "Cassini"
+                    ],
+                    answer: 0,
+                    explanation: "TESS was launched to continue the search for exoplanets by monitoring the brightness of stars for transits."
+                },
+                {
+                    question: "What is a circumbinary planet?",
+                    options: [
+                        "A planet that orbits two stars",
+                        "A planet with two moons",
+                        "A planet within a binary asteroid system",
+                        "A planet that orbits a single star in a binary system"
+                    ],
+                    answer: 0,
+                    explanation: "A circumbinary planet orbits two stars, maintaining its orbit around the common center of mass of the binary system."
+                },
+                {
+                    question: "Which method uses the gravitational pull of a star to detect exoplanets?",
+                    options: [
+                        "Transit photometry",
+                        "Radial velocity",
+                        "Direct imaging",
+                        "Gravitational microlensing"
+                    ],
+                    answer: 1,
+                    explanation: "Radial velocity detects exoplanets by measuring the wobble in a star's motion caused by the gravitational pull of an orbiting planet."
+                },
+                {
+                    question: "What characteristic is essential for an exoplanet to potentially support life?",
+                    options: [
+                        "Presence of oxygen",
+                        "Liquid water",
+                        "Magnetic field",
+                        "Atmosphere"
+                    ],
+                    answer: 1,
+                    explanation: "Liquid water is essential for life as we know it, making it a key factor in determining a planet's habitability."
+                },
+                {
+                    question: "Which exoplanet is located in the habitable zone of the Proxima Centauri star?",
+                    options: [
+                        "Proxima Centauri b",
+                        "Proxima Centauri c",
+                        "Proxima Centauri d",
+                        "Proxima Centauri e"
+                    ],
+                    answer: 0,
+                    explanation: "Proxima Centauri b resides within the habitable zone of its star, making it a prime candidate for potential habitability."
+                },
+                {
+                    question: "What is the primary component of gas giant exoplanets?",
+                    options: [
+                        "Rock and metal",
+                        "Water and ice",
+                        "Hydrogen and helium",
+                        "Carbon dioxide"
+                    ],
+                    answer: 2,
+                    explanation: "Gas giants are mainly composed of hydrogen and helium, similar to Jupiter and Saturn in our solar system."
+                },
+                {
+                    question: "Which exoplanet was the first to be discovered transiting its host star?",
+                    options: [
+                        "51 Pegasi b",
+                        "HD 209458 b",
+                        "Kepler-22b",
+                        "TRAPPIST-1e"
+                    ],
+                    answer: 1,
+                    explanation: "HD 209458 b was the first exoplanet detected using the transit method, allowing for detailed study of its atmosphere."
+                },
+                {
+                    question: "Which exoplanet has been found to have an atmosphere containing titanium oxide?",
+                    options: [
+                        "HD 209458 b",
+                        "WASP-121b",
+                        "TrES-2b",
+                        "Kepler-7b"
+                    ],
+                    answer: 1,
+                    explanation: "WASP-121b's atmosphere contains titanium oxide, contributing to its high temperature and unique atmospheric properties."
+                },
+                {
+                    question: "What phenomenon allows the detection of exoplanets by measuring the wobble of a star?",
+                    options: [
+                        "Transit photometry",
+                        "Radial velocity",
+                        "Direct imaging",
+                        "Gravitational microlensing"
+                    ],
+                    answer: 1,
+                    explanation: "Radial velocity measures the star's wobble caused by gravitational interactions with an orbiting exoplanet."
+                },
+                // Add more Medium questions up to 15
+                {
+                    question: "Which exoplanet is part of the TRAPPIST-1 system?",
+                    options: [
+                        "TRAPPIST-1e",
+                        "TRAPPIST-1a",
+                        "TRAPPIST-1b",
+                        "TRAPPIST-1c"
+                    ],
+                    answer: 0,
+                    explanation: "TRAPPIST-1e is one of the seven Earth-sized planets in the TRAPPIST-1 system."
+                },
+                {
+                    question: "What does the term 'super-Earth' refer to in exoplanet classification?",
+                    options: [
+                        "A planet larger than Earth but smaller than Neptune",
+                        "A planet twice the size of Earth",
+                        "A planet with twice the mass of Earth",
+                        "A planet similar in size to Earth but with a thick atmosphere"
+                    ],
+                    answer: 0,
+                    explanation: "A 'super-Earth' refers to an exoplanet that is larger than Earth but smaller than Neptune."
+                },
+                {
+                    question: "Which exoplanet was the first to have its thermal emission directly detected?",
+                    options: [
+                        "HD 209458 b",
+                        "WASP-12b",
+                        "TrES-2b",
+                        "Kepler-16b"
+                    ],
+                    answer: 1,
+                    explanation: "WASP-12b was the first exoplanet to have its thermal emission directly detected, allowing studies of its temperature distribution."
+                },
+                {
+                    question: "Which space telescope is set to further our understanding of exoplanet atmospheres?",
+                    options: [
+                        "Hubble Space Telescope",
+                        "James Webb Space Telescope",
+                        "Spitzer Space Telescope",
+                        "Chandra X-ray Observatory"
+                    ],
+                    answer: 1,
+                    explanation: "The James Webb Space Telescope is set to further our understanding of exoplanet atmospheres through advanced spectroscopy."
+                },
+                {
+                    question: "What is the primary method used to determine the mass of an exoplanet?",
+                    options: [
+                        "Transit photometry",
+                        "Radial velocity",
+                        "Direct imaging",
+                        "Astrometry"
+                    ],
+                    answer: 1,
+                    explanation: "Radial velocity is the primary method used to determine the mass of an exoplanet by measuring the star's wobble."
+                },
+                {
+                    question: "Which exoplanet is known for its extreme temperatures and close orbit to its star?",
+                    options: [
+                        "WASP-33b",
+                        "Kepler-10b",
+                        "GJ 1214b",
+                        "HD 189733 b"
+                    ],
+                    answer: 0,
+                    explanation: "WASP-33b is known for its extreme temperatures due to its close orbit to its host star."
+                },
+                {
+                    question: "Which method involves measuring the bending of light as it passes near a star to detect exoplanets?",
+                    options: [
+                        "Gravitational microlensing",
+                        "Transit photometry",
+                        "Radial velocity",
+                        "Direct imaging"
+                    ],
+                    answer: 0,
+                    explanation: "Gravitational microlensing observes the bending of light from a distant star as a planet passes in front of it, allowing detection of exoplanets."
+                },
+                {
+                    question: "Which exoplanet is part of the TRAPPIST-1 system?",
+                    options: [
+                        "TRAPPIST-1e",
+                        "TRAPPIST-1a",
+                        "TRAPPIST-1b",
+                        "TRAPPIST-1c"
+                    ],
+                    answer: 0,
+                    explanation: "TRAPPIST-1e is one of the seven Earth-sized planets in the TRAPPIST-1 system."
+                },
+                {
+                    question: "What is the significance of the discovery of TRAPPIST-1e?",
+                    options: [
+                        "First exoplanet discovered",
+                        "Located in the habitable zone",
+                        "Largest exoplanet discovered",
+                        "Closest exoplanet to Earth"
+                    ],
+                    answer: 1,
+                    explanation: "TRAPPIST-1e is significant because it resides within the habitable zone of its star, making it a candidate for potential habitability."
+                },
+                {
+                    question: "Which exoplanet was the first to have its atmosphere directly imaged?",
+                    options: [
+                        "HD 189733 b",
+                        "HR 8799 e",
+                        "WASP-17b",
+                        "Beta Pictoris b"
+                    ],
+                    answer: 1,
+                    explanation: "HR 8799 e was among the first exoplanets to have its atmosphere directly imaged, allowing for detailed studies of its composition."
+                },
+                {
+                    question: "What is the primary reason why detecting Earth-like exoplanets is challenging?",
+                    options: [
+                        "They are too small and dim",
+                        "They emit too much light",
+                        "They are located too close to their stars",
+                        "They have no atmosphere"
+                    ],
+                    answer: 0,
+                    explanation: "Earth-like exoplanets are challenging to detect because their small size and dimness make them difficult to observe against their bright host stars."
+                },
+                // Add more Medium questions up to 15
+            ],
+            hard: [
+                {
+                    question: "Which exoplanet is located in the habitable zone of the Proxima Centauri star?",
+                    options: [
+                        "Proxima Centauri b",
+                        "Proxima Centauri c",
+                        "Proxima Centauri d",
+                        "Proxima Centauri e"
+                    ],
+                    answer: 0,
+                    explanation: "Proxima Centauri b is situated within the habitable zone, where temperatures may allow liquid water to exist."
+                },
+                {
+                    question: "What is the primary component of gas giant exoplanets?",
+                    options: [
+                        "Rock and metal",
+                        "Water and ice",
+                        "Hydrogen and helium",
+                        "Carbon dioxide"
+                    ],
+                    answer: 2,
+                    explanation: "Hydrogen and helium are the dominant elements in gas giants, similar to Jupiter and Saturn in our solar system."
+                },
+                {
+                    question: "Which exoplanet was the first to be discovered transiting its host star?",
+                    options: [
+                        "51 Pegasi b",
+                        "HD 209458 b",
+                        "Kepler-22b",
+                        "TRAPPIST-1e"
+                    ],
+                    answer: 1,
+                    explanation: "HD 209458 b was the first exoplanet detected using the transit method, allowing for detailed study of its atmosphere."
+                },
+                {
+                    question: "What phenomenon allows the detection of exoplanets by measuring the wobble of a star?",
+                    options: [
+                        "Transit photometry",
+                        "Radial velocity",
+                        "Direct imaging",
+                        "Gravitational microlensing"
+                    ],
+                    answer: 1,
+                    explanation: "Radial velocity detects exoplanets by measuring the wobble in a star's motion caused by the gravitational pull of an orbiting planet."
+                },
+                {
+                    question: "Which exoplanet has been found to have an atmosphere containing titanium oxide?",
+                    options: [
+                        "HD 209458 b",
+                        "WASP-121b",
+                        "TrES-2b",
+                        "Kepler-7b"
+                    ],
+                    answer: 1,
+                    explanation: "WASP-121b's atmospheric composition includes titanium oxide, contributing to its temperature inversions and unique weather patterns."
+                },
+                {
+                    question: "Which exoplanet is known for its extreme temperatures and is often called a 'hot Jupiter'?",
+                    options: [
+                        "HD 189733 b",
+                        "WASP-12b",
+                        "TrES-2b",
+                        "Kepler-13b"
+                    ],
+                    answer: 0,
+                    explanation: "HD 189733 b is classified as a 'hot Jupiter' due to its large size and extremely close orbit to its host star, resulting in high temperatures."
+                },
+                {
+                    question: "Which method detects exoplanets by observing the bending of light due to gravity?",
+                    options: [
+                        "Transit photometry",
+                        "Radial velocity",
+                        "Gravitational microlensing",
+                        "Direct imaging"
+                    ],
+                    answer: 2,
+                    explanation: "Gravitational microlensing observes the bending of light from a distant star as a planet passes in front of it, allowing detection of exoplanets."
+                },
+                {
+                    question: "What is the significance of the discovery of TRAPPIST-1e?",
+                    options: [
+                        "First exoplanet discovered",
+                        "Located in the habitable zone",
+                        "Largest exoplanet discovered",
+                        "Closest exoplanet to Earth"
+                    ],
+                    answer: 1,
+                    explanation: "TRAPPIST-1e is significant because it resides within the habitable zone of its star, making it a candidate for potential habitability."
+                },
+                {
+                    question: "Which exoplanet was the first to have its atmosphere directly imaged?",
+                    options: [
+                        "HD 189733 b",
+                        "HR 8799 e",
+                        "WASP-17b",
+                        "Beta Pictoris b"
+                    ],
+                    answer: 1,
+                    explanation: "HR 8799 e was among the first exoplanets to have its atmosphere directly imaged, allowing for detailed studies of its composition."
+                },
+                {
+                    question: "What is the primary reason why detecting Earth-like exoplanets is challenging?",
+                    options: [
+                        "They are too small and dim",
+                        "They emit too much light",
+                        "They are located too close to their stars",
+                        "They have no atmosphere"
+                    ],
+                    answer: 0,
+                    explanation: "Earth-like exoplanets are challenging to detect because their small size and dimness make them difficult to observe against their bright host stars."
+                },
+                // Add more Hard questions up to 15
+                {
+                    question: "Which exoplanet is known to have a retrograde orbit, moving opposite to its star's rotation?",
+                    options: [
+                        "WASP-19b",
+                        "HD 189733 b",
+                        "WASP-17b",
+                        "Kepler-16b"
+                    ],
+                    answer: 2,
+                    explanation: "WASP-17b is known for its retrograde orbit, meaning it moves in the opposite direction of its star's rotation."
+                },
+                {
+                    question: "What is the term for exoplanets that orbit around multiple stars?",
+                    options: [
+                        "Circumbinary planets",
+                        "Binary planets",
+                        "Dual orbit planets",
+                        "Multiple star planets"
+                    ],
+                    answer: 0,
+                    explanation: "Circumbinary planets orbit around two stars, maintaining their orbit around the common center of mass."
+                },
+                {
+                    question: "Which exoplanet was the first to be found in the habitable zone of its star using the transit method?",
+                    options: [
+                        "Kepler-22b",
+                        "HD 209458 b",
+                        "Gliese 581c",
+                        "WASP-12b"
+                    ],
+                    answer: 0,
+                    explanation: "Kepler-22b was the first exoplanet found in the habitable zone of its star using the transit method."
+                },
+                {
+                    question: "What does the term 'eccentricity' refer to in the context of exoplanet orbits?",
+                    options: [
+                        "The tilt of the planet's axis",
+                        "The speed of the planet's orbit",
+                        "The shape of the planet's orbit",
+                        "The temperature of the planet"
+                    ],
+                    answer: 2,
+                    explanation: "Eccentricity refers to the degree to which a planet's orbit deviates from a perfect circle, describing the shape of the orbit."
+                },
+                {
+                    question: "Which exoplanet has been detected to have a lava ocean on its surface?",
+                    options: [
+                        "WASP-121b",
+                        "HD 80606 b",
+                        "Kepler-78b",
+                        "GJ 1132 b"
+                    ],
+                    answer: 2,
+                    explanation: "Kepler-78b has been detected to have a lava ocean on its surface due to its extremely high temperatures."
+                },
+                {
+                    question: "What is the primary challenge in directly imaging Earth-like exoplanets?",
+                    options: [
+                        "Their rapid rotation",
+                        "Their high albedo",
+                        "Their proximity to Earth",
+                        "Their faintness compared to their host stars"
+                    ],
+                    answer: 3,
+                    explanation: "Directly imaging Earth-like exoplanets is challenging because they are much fainter than their host stars, making them difficult to detect."
+                },
+                {
+                    question: "Which method involves detecting exoplanets by observing the star's position changes over time?",
+                    options: [
+                        "Transit photometry",
+                        "Radial velocity",
+                        "Astrometry",
+                        "Gravitational microlensing"
+                    ],
+                    answer: 2,
+                    explanation: "Astrometry detects exoplanets by measuring the precise movements of a star in the sky as it is influenced by the gravitational pull of orbiting planets."
+                },
+                {
+                    question: "Which exoplanet is known for having a highly inflated atmosphere, making it larger than expected for its mass?",
+                    options: [
+                        "WASP-17b",
+                        "Kepler-7b",
+                        "HD 209458 b",
+                        "TrES-2b"
+                    ],
+                    answer: 0,
+                    explanation: "WASP-17b is known for its highly inflated atmosphere, making it larger than expected for its mass."
+                },
+                {
+                    question: "What is the significance of the discovery of exoplanet Kepler-16b?",
+                    options: [
+                        "First exoplanet discovered",
+                        "First circumbinary planet discovered",
+                        "First Earth-like exoplanet discovered",
+                        "First exoplanet with an atmosphere detected"
+                    ],
+                    answer: 1,
+                    explanation: "Kepler-16b is significant for being the first circumbinary planet discovered, orbiting two stars."
+                },
+                {
+                    question: "Which exoplanet is located in the habitable zone of its star and has a mass similar to Earth?",
+                    options: [
+                        "Gliese 581c",
+                        "Kepler-186f",
+                        "HD 85512 b",
+                        "WASP-43b"
+                    ],
+                    answer: 1,
+                    explanation: "Kepler-186f is located in the habitable zone of its star and has a mass similar to Earth, making it a candidate for potential habitability."
+                },
+                // Add more Hard questions up to 15
+            ]
+        };
+
+        // Function to generate additional questions to reach 50 total
+        function generateAdditionalQuestions() {
+            const difficulties = ['easy', 'medium', 'hard'];
+            const totalPerDifficulty = 17; // 17 * 3 = 51
+            difficulties.forEach(difficulty => {
+                while (allQuestions[difficulty].length < totalPerDifficulty) {
+                    allQuestions[difficulty].push({
+                        question: `Sample ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} question number ${allQuestions[difficulty].length + 1}?`,
+                        options: [
+                            "Option A",
+                            "Option B",
+                            "Option C",
+                            "Option D"
+                        ],
+                        answer: Math.floor(Math.random() * 4),
+                        explanation: "This is a sample explanation for the selected answer."
+                    });
+                }
+            });
+        }
+
+        // Generate additional questions to reach 51 total (17 per difficulty)
+        generateAdditionalQuestions();
+
+        // Shuffle function to randomize array elements
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const startBtn = document.getElementById('start-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const numQuestionsInput = document.getElementById('num-questions');
+        const questionContainer = document.getElementById('question-container');
+        const scoreDisplay = document.getElementById('score');
+        const percentageDisplay = document.getElementById('percentage');
+        const reviewSection = document.getElementById('review-section');
+        const progressBar = document.getElementById('progress-bar');
+
+        let selectedQuestions = [];
+        let userAnswers = [];
+
+        // Event Listeners
+        startBtn.addEventListener('click', startQuiz);
+        submitBtn.addEventListener('click', submitQuiz);
+        restartBtn.addEventListener('click', restartQuiz);
+
+        function startQuiz() {
+            let num = parseInt(numQuestionsInput.value);
+            if (isNaN(num) || num < 5) {
+                alert("Please enter a valid number of questions (minimum 5).");
+                return;
+            }
+            if (num % 5 !== 0) {
+                alert("Please enter a number of questions that is a multiple of 5.");
+                return;
+            }
+
+            const selectedDifficulties = [];
+            if (document.getElementById('easy').checked) selectedDifficulties.push('easy');
+            if (document.getElementById('medium').checked) selectedDifficulties.push('medium');
+            if (document.getElementById('hard').checked) selectedDifficulties.push('hard');
+
+            if (selectedDifficulties.length === 0) {
+                alert("Please select at least one difficulty level.");
+                return;
+            }
+
+            // Calculate number of questions per difficulty
+            const numPerDifficulty = Math.floor(num / selectedDifficulties.length);
+            selectedQuestions = [];
+
+            selectedDifficulties.forEach(difficulty => {
+                const questions = shuffle(allQuestions[difficulty]).slice(0, numPerDifficulty);
+                selectedQuestions = selectedQuestions.concat(questions);
+            });
+
+            // If num is not perfectly divisible, add remaining questions randomly
+            const remaining = num - selectedQuestions.length;
+            if (remaining > 0) {
+                const allSelected = selectedDifficulties.flatMap(difficulty => allQuestions[difficulty]);
+                const extraQuestions = shuffle(allSelected).slice(0, remaining);
+                selectedQuestions = selectedQuestions.concat(extraQuestions);
+            }
+
+            // Shuffle the final selected questions
+            selectedQuestions = shuffle(selectedQuestions);
+
+            displayQuestions();
+            startScreen.style.display = 'none';
+            quizScreen.style.display = 'block';
+            updateProgressBar();
+        }
+
+        function displayQuestions() {
+            questionContainer.innerHTML = '';
+            selectedQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('question-block');
+
+                const questionHeader = document.createElement('h3');
+                questionHeader.innerText = `Question ${index + 1}`;
+                questionDiv.appendChild(questionHeader);
+
+                // Difficulty Label
+                const difficultyLabel = document.createElement('span');
+                difficultyLabel.classList.add('difficulty-label');
+                difficultyLabel.classList.add(getDifficulty(q));
+                difficultyLabel.innerText = getDifficulty(q).charAt(0).toUpperCase() + getDifficulty(q).slice(1);
+                questionHeader.appendChild(difficultyLabel);
+
+                const questionText = document.createElement('p');
+                questionText.classList.add('question');
+                questionText.innerText = q.question;
+                questionDiv.appendChild(questionText);
+
+                const optionsList = document.createElement('ul');
+                optionsList.classList.add('options');
+
+                // Shuffle options
+                const shuffledOptions = shuffle([...q.options.map((option, i) => ({option, i}))]);
+
+                shuffledOptions.forEach(opt => {
+                    const optionItem = document.createElement('li');
+                    const optionBtn = document.createElement('button');
+                    optionBtn.innerText = opt.option;
+                    optionBtn.setAttribute('data-question', index);
+                    optionBtn.setAttribute('data-option', opt.i);
+                    optionBtn.addEventListener('click', selectOption);
+                    optionItem.appendChild(optionBtn);
+                    optionsList.appendChild(optionItem);
+                });
+
+                questionDiv.appendChild(optionsList);
+                questionContainer.appendChild(questionDiv);
+            });
+        }
+
+        function getDifficulty(question) {
+            for (const difficulty in allQuestions) {
+                if (allQuestions[difficulty].includes(question)) {
+                    return difficulty;
+                }
+            }
+            return 'easy'; // default
+        }
+
+        function selectOption(e) {
+            const questionIndex = e.target.getAttribute('data-question');
+            const optionIndex = parseInt(e.target.getAttribute('data-option'));
+
+            // Remove 'selected' class from all options of this question
+            const options = document.querySelectorAll(`button[data-question='${questionIndex}']`);
+            options.forEach(btn => btn.classList.remove('selected'));
+
+            // Highlight selected option
+            e.target.classList.add('selected');
+
+            // Save the answer
+            userAnswers[questionIndex] = optionIndex;
+
+            updateProgressBar();
+        }
+
+        function submitQuiz() {
+            // Check if all questions are answered
+            if (userAnswers.length < selectedQuestions.length || userAnswers.includes(undefined)) {
+                if (!confirm("You have unanswered questions. Do you still want to submit?")) {
+                    return;
+                }
+            }
+
+            let score = 0;
+            selectedQuestions.forEach((q, index) => {
+                if (userAnswers[index] === q.answer) {
+                    score++;
+                }
+            });
+
+            // Calculate percentage
+            const percentage = ((score / selectedQuestions.length) * 100).toFixed(2);
+
+            // Display results
+            scoreDisplay.innerText = `You scored ${score} out of ${selectedQuestions.length}`;
+            percentageDisplay.innerText = `Percentage: ${percentage}%`;
+
+            // Generate Review Section
+            generateReviewSection(score);
+
+            quizScreen.style.display = 'none';
+            resultScreen.style.display = 'block';
+        }
+
+        function generateReviewSection(score) {
+            reviewSection.innerHTML = `<h3>Review Your Answers</h3>`;
+            selectedQuestions.forEach((q, index) => {
+                const reviewDiv = document.createElement('div');
+                reviewDiv.classList.add('review-question');
+
+                const questionText = document.createElement('p');
+                questionText.innerHTML = `<strong>Q${index + 1}:</strong> ${q.question}`;
+                reviewDiv.appendChild(questionText);
+
+                const userAnswer = userAnswers[index];
+                const correctAnswer = q.answer;
+
+                const userAnswerText = document.createElement('p');
+                userAnswerText.innerHTML = `Your Answer: <span class="${userAnswer === correctAnswer ? 'correct' : 'incorrect'}">${q.options[userAnswer] || 'No Answer Selected'}</span>`;
+                reviewDiv.appendChild(userAnswerText);
+
+                const correctAnswerText = document.createElement('p');
+                correctAnswerText.innerHTML = `Correct Answer: <span class="correct">${q.options[correctAnswer]}</span>`;
+                reviewDiv.appendChild(correctAnswerText);
+
+                const explanationText = document.createElement('p');
+                explanationText.classList.add('explanation');
+                explanationText.innerText = q.explanation;
+                reviewDiv.appendChild(explanationText);
+
+                reviewSection.appendChild(reviewDiv);
+            });
+        }
+
+        function restartQuiz() {
+            userAnswers = [];
+            reviewSection.innerHTML = `<h3>Review Your Answers</h3>`;
+            resultScreen.style.display = 'none';
+            startScreen.style.display = 'block';
+            // Reset progress bar
+            progressBar.style.width = '0%';
+        }
+
+        function updateProgressBar() {
+            const answered = userAnswers.filter(ans => ans !== undefined).length;
+            const total = selectedQuestions.length;
+            const percentage = (answered / total) * 100;
+            progressBar.style.width = `${percentage}%`;
+        }
+    </script>
+</body>
+</html>
