@@ -1,4 +1,4 @@
-# Exo_xplore
+#Exo_xplore
  
 Our problem statement was to create a educational platform for middle school high school and college students to learn and explore about exoplanets.
 
